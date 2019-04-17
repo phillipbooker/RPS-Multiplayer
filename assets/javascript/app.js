@@ -69,8 +69,9 @@ function setName(name){
 
 $("#submit-player").on("click", function(event){
     event.preventDefault();
-    if(gameState === "start"){
-        setName($("#player-input").val().trim());
+    var input = $("#player-input").val().trim();
+    if(gameState === "start" && input !== ""){
+        setName(input);
         console.log("Player 1: " + pName1);
         console.log("Player 2: " + pName2);
 
@@ -84,8 +85,9 @@ $("#submit-player").on("click", function(event){
             $("#submit-player").css("display", "none");
         }
 
-        $("#player-input").val("");
+        
     }
+    $("#player-input").val("");
     
 });
 
