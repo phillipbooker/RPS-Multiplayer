@@ -15,10 +15,12 @@ function resetGame(){
     pName1 = "";
     pChoice1 = "";
     pScore1 = 0;
+    $("#score-1").text("Score: " + pScore1);
 
     pName2 = "";
     pChoice2 = "";
     pScore2 = 0;
+    $("#score-2").text("Score: " + pScore2);
 
     draws = 0;
 
@@ -26,10 +28,20 @@ function resetGame(){
 
     $("#player-input").css("display", "inline-block");
     $("#submit-player").css("display", "inline-block");
+    $("#rematch").css("display", "none");
 
     gameState = "start";
 
     $("#results").text("Enter name for Player 1");
+}
+
+function prepMatch(){
+    pChoice1 = "";
+    pChoice1 = "";
+
+    $("#results").text(pName1 + " is choosing...");
+
+    gameState = "p1";
 }
 
 function chooseWinner(p1, p2){
@@ -46,8 +58,10 @@ function setName(name){
     
     if(players == 0){
         pName1 = name;
+        $("#name-1").text(pName1);
     } else if(players == 1){
         pName2 = name;
+        $("#name-2").text(pName2);
     }
     players++;
     
@@ -100,8 +114,28 @@ $(".player-choice-2").on("click", function(){
             draws++;
         }
 
+        $("#score-1").text("Score: " + pScore1);
+        $("#score-2").text("Score: " + pScore2);
+        
+        $("#rematch").css("display", "inline-block");
         gameState = "result";
     }
+});
+
+$("#ready-button").on("click", function(){
+    $("#rematch").css("display", "none");
+    prepMatch();
+});
+
+$("#submit-chat").on("click", function(event){
+    event.preventDefault();
+    var text = $("#chat-input").val().trim();
+
+    var newP = $("<p>");
+    newP.text(text);
+    $("#chat").append(newP);
+
+    $("#chat-input").val("");
 });
 
 $(document).ready(function(){
