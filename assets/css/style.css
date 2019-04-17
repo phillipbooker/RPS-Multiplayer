@@ -9,3 +9,9 @@
     width: 200px;
     margin: 25px;
 }
+
+.clearfix::after{
+    content: "";
+    display: block;
+    clear: both;
+}
