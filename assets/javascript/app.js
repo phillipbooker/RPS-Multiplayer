@@ -70,7 +70,7 @@ function setName(name){
 $("#submit-player").on("click", function(event){
     event.preventDefault();
     if(gameState === "start"){
-        setName($("#player-input").val());
+        setName($("#player-input").val().trim());
         console.log("Player 1: " + pName1);
         console.log("Player 2: " + pName2);
 
@@ -136,6 +136,9 @@ $("#submit-chat").on("click", function(event){
     $("#chat").append(newP);
 
     $("#chat-input").val("");
+
+    console.log($("#chat")[0].scrollTop);
+    $("#chat")[0].scrollTop = $("#chat")[0].scrollHeight;
 });
 
 $(document).ready(function(){
