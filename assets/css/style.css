@@ -20,4 +20,5 @@
     width: 500px;
     height: 100px;
     overflow: auto;
+    border: solid 1px black;
 }
