@@ -10,32 +10,23 @@
 <body>
     <main>
         <div id="game-field" class="clearfix">
-            <button id="magic-button">RESET!</button>
-            <button id="check-button">Checkup</button>
             <div id="player-1" class="game-box">
                 <p id="name-1" class="player-item">Player 1</p>
                 <p id="score-1" class="player-item">Score</p>
                 <br>
-                <div id="choices-1">
-                    <!-- <p id="rock-1" class="player-choice-1" data-choice="r">Rock</p>
-                    <p id="paper-1" class="player-choice-1" data-choice="p">Paper</p>
-                    <p id="scissor-1" class="player-choice-1" data-choice="s">Scissors</p> -->
-                </div>
+                <div id="choices-1"></div>
             </div>
             <div id="user-input" class="game-box">
-                <form>
+                <form id="name-form">
                     <input id="player-input" type="text" ><input id="submit-player" value="Enter" type="submit">
                 </form>
+                <div id="matchup"></div>
             </div>
             <div id="player-2" class="game-box">
                 <p id="name-2" class="player-item">Player 2</p>
                 <p id="score-2" class="player-item">Score</p>
                 <br>
-                <div id="choices-2">
-                    <!-- <p id="rock-2" class="player-choice-2" data-choice="r">Rock</p>
-                    <p id="paper-2" class="player-choice-2" data-choice="p">Paper</p>
-                    <p id="scissor-2" class="player-choice-2" data-choice="s">Scissors</p> -->
-                </div>
+                <div id="choices-2"></div>
             </div>
         </div>
         <div id="results"></div>
@@ -51,6 +42,8 @@
                 <input id="chat-input" type="text" ><input id="submit-chat" value="Send" type="submit">
             </form>
         </div>
+        <button id="magic-button">RESET!</button>
+        <button id="check-button">Checkup</button>
     </main>
     <script src="https://www.gstatic.com/firebasejs/5.10.0/firebase.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>

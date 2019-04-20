@@ -22,3 +22,11 @@
     overflow: auto;
     border: solid 1px black;
 }
+
+#name-form{
+    display: none;
+}
+
+#magic-button{
+    display: none;
+}

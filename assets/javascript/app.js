@@ -11,7 +11,6 @@ var draws = 0;
 var gameState;
 var players = 0;
 
-var userId = 17;
 var connectionId;
 var uniqueId;
 var playerId1;
@@ -55,8 +54,7 @@ function resetGame(){
     playerId1 = "no";
     playerId2 = "no";
 
-    $("#player-input").css("display", "inline-block");
-    $("#submit-player").css("display", "inline-block");
+    // $("#name-form").css("display", "block");
     $("#rematch").css("display", "none");
 
     gameState = "start";
@@ -79,7 +77,7 @@ function updatePrompt(state){
     var result;
     switch(state) {
         case "start":
-            result = "Enter name";
+            result = "Enter name for player " + (players + 1);
             break;
         case "p1":
             result = pName1 + " is choosing...";
@@ -91,7 +89,7 @@ function updatePrompt(state){
             result = "";
             break;
         default:
-            result = "Issue retrieving state";
+            result = "Loading...";
     }
     // $("#results").text(result);
     promptRef.set({
@@ -208,6 +206,11 @@ connectedRef.on("value", function(snap) {
 
         screenName = connectionId.key.substr(connectionId.key.length - 5);
         $("#screen-name").text(screenName);
+
+        chatRef.set({
+            chat: screenName + " has joined the chat!",
+            sender: "System"
+        });
         // uniqueId = connectionId.key;
 
         // Remove user from the connection list when they disconnect.
@@ -238,6 +241,13 @@ gameRef.on("value", function(snapshot){
 
     $("#choices-1").empty();
     $("#choices-2").empty();
+
+    if(gameState !== "start"){
+        $("#name-form").css("display", "none");
+    } else {
+        $("#name-form").css("display", "block");
+        // $("#matchup").text("");
+    }
 
     if((gameState === "p1") && (connectionId.key === playerId1)){
         populateChoices(1);
@@ -272,7 +282,6 @@ promptRef.on("value", function(snapshot){
 
 
 chatRef.on("value", function(snapshot){
-    // userId = snapshot.val().userId;
 
     //Keep track of players in the game
     latestChat = snapshot.val().chat;
@@ -296,18 +305,17 @@ $("#submit-player").on("click", function(event){
             setName(input);
             // $("#results").text("Enter name for Player 2");
             players++;
+            updatePrompt(gameState);
             updateGame(gameState, players, connectionId.key, playerId2);
             updateP1(pName1, "", 0);
-            updatePrompt(gameState);
+            
 
             console.log("Set the player info");
         } else if((players == 1) && (connectionId.key !== playerId1)){
             setName(input);
             gameState = "p1";
             // $("#results").text(pName1 + " is choosing...");
-
-            $("#player-input").css("display", "none");
-            $("#submit-player").css("display", "none");
+            $("#name-form").css("display", "none");
             players++;
             updateGame(gameState, players, playerId1, connectionId.key);
             updateP2(pName2, "", 0);
@@ -344,6 +352,8 @@ $("#choices-2").on("click", ".player-choice-2", function(){
 
         var gameResult = chooseWinner(pChoice1, pChoice2);
 
+        $("#matchup").text(pName1 + ": " + pChoice1 + " - " + pName2 + ": " + pChoice2);
+        
         if(gameResult === 1){
             $("#results").text(pName1 + " wins!");
             pScore1++;
@@ -385,7 +395,10 @@ $("#submit-chat").on("click", function(event){
         sender: connectionId.key.substr(connectionId.key.length - 5)
     });
 
-    // pushChat(text);
+    //Debug - uncover reset button
+    if(text === "debug"){
+        $("#magic-button").css("display", "inline-block");
+    }
 });
 
 $(document).ready(function(){
@@ -403,11 +416,6 @@ function populateChoices(player){
         $("#choices-" + player).append(rpsP);
         console.log(rpsP);
     });
-    // <p id="name-1" class="player-item">Player 1</p>
-    // <p id="rock-1" class="player-choice-1" data-choice="r">Rock</p>
-    // <p id="paper-1" class="player-choice-1" data-choice="p">Paper</p>
-    // <p id="scissor-1" class="player-choice-1" data-choice="s">Scissors</p>
-    // <p id="score-1" class="player-item">Score</p>
 }
 
 $("#magic-button").on("click", resetGame);
@@ -427,7 +435,6 @@ function checkGame(){
     console.log("Unique ID pid Check: " + (playerId1 != uniqueId));
     console.log("Sanity Check: " + ("poo" != "poo"));
     console.log(connectionId.key.substr(connectionId.key.length - 5));
-    // $("#results").text(connectionId.key);
 }
 
 $("#check-button").on("click", checkGame);
