@@ -45,8 +45,9 @@ function resetGame(){
     updateGame(gameState, players, playerId1, playerId2);
     updateP1(pName1, pChoice1, pScore1);
     updateP2(pName2, pChoice2, pScore2);
+    // updatePrompt();
 
-    $("#results").text("Enter name for Player 1");
+    // $("#results").text("Enter name for Player 1");
 }
 
 function newPlayer(){
@@ -74,18 +75,21 @@ function updatePrompt(state){
         default:
             result = "Issue retrieving state";
     }
-    $("#results").text(result);
-
+    // $("#results").text(result);
+    promptRef.set({
+        prompt: result
+    });
 }
 
 function prepMatch(){
     pChoice1 = "";
     pChoice1 = "";
 
-    $("#results").text(pName1 + " is choosing...");
+    // $("#results").text(pName1 + " is choosing...");
 
     gameState = "p1";
     updateGame(gameState, players, playerId1, playerId2);
+    updatePrompt(gameState);
 }
 
 function chooseWinner(p1, p2){
@@ -169,6 +173,7 @@ var chatRef = database.ref("/chat");
 var gameRef = database.ref("/gameValues");
 var p1Ref = database.ref("/player1");
 var p2Ref = database.ref("/player2");
+var promptRef = database.ref("/prompt");
 ///////////SET GAME STATE IN DB
 
 // '.info/connected' is a boolean value, true if the client is connected and false if they are not.
@@ -209,6 +214,7 @@ gameRef.on("value", function(snapshot){
     players = snapshot.val().players;
     playerId1 = snapshot.val().p1id;
     playerId2 = snapshot.val().p2id;
+    updatePrompt(gameState);
 }, function(errorObject){
     console.log(errorObject.code);
 });
@@ -229,7 +235,9 @@ p2Ref.on("value", function(snapshot){
     $("#score-2").text(pScore2);
 });
 
-
+promptRef.on("value", function(snapshot){
+    $("#results").text(snapshot.val().prompt);
+});
 
 
 chatRef.on("value", function(snapshot){
@@ -254,24 +262,24 @@ $("#submit-player").on("click", function(event){
 
         if(players == 0){
             setName(input);
-            $("#results").text("Enter name for Player 2");
+            // $("#results").text("Enter name for Player 2");
             players++;
             updateGame(gameState, players, connectionId.key, playerId2);
             updateP1(pName1, "", 0);
-            
+            updatePrompt(gameState);
 
             console.log("Set the player info");
         } else if((players == 1) && (connectionId.key !== playerId1)){
             setName(input);
             gameState = "p1";
-            $("#results").text(pName1 + " is choosing...");
+            // $("#results").text(pName1 + " is choosing...");
 
             $("#player-input").css("display", "none");
             $("#submit-player").css("display", "none");
             players++;
             updateGame(gameState, players, playerId1, connectionId.key);
             updateP2(pName2, "", 0);
-            
+            updatePrompt(gameState);
         }
 
         
@@ -286,16 +294,19 @@ $("#submit-player").on("click", function(event){
 $(".player-choice-1").on("click", function(){
     if(gameState === "p1" && connectionId.key === playerId1){
         pChoice1 = $(this).attr("data-choice");
-        $("#results").text(pName2 + " is choosing...");
+        // $("#results").text(pName2 + " is choosing...");
         gameState = "p2";
         updateGame(gameState, players, playerId1, playerId2);
+        updateP1(pName1, pChoice1, pScore1);
+        updatePrompt(gameState);
     }
 });
 
 $(".player-choice-2").on("click", function(){
     if(gameState === "p2" && connectionId.key === playerId2){
         pChoice2 = $(this).attr("data-choice");
-        
+        updateP2(pName2, pChoice2, pScore2);
+
         var gameResult = chooseWinner(pChoice1, pChoice2);
 
         if(gameResult === 1){
@@ -308,6 +319,7 @@ $(".player-choice-2").on("click", function(){
             $("#results").text(pName1 + " and " + pName2 + " tied!");
             draws++;
         }
+        
 
         $("#score-1").text("Score: " + pScore1);
         $("#score-2").text("Score: " + pScore2);
@@ -315,6 +327,9 @@ $(".player-choice-2").on("click", function(){
         $("#rematch").css("display", "inline-block");
         gameState = "result";
         updateGame(gameState, players, playerId1, playerId2);
+        updateP1(pName1, pChoice1, pScore1);
+        updateP2(pName2, pChoice2, pScore2);
+        
     }
 });
 
