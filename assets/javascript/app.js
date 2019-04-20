@@ -225,7 +225,7 @@ p1Ref.on("value", function(snapshot){
     pName1 = snapshot.val().name;
     pScore1 = snapshot.val().score;
     $("#name-1").text(pName1);
-    $("#score-1").text(pScore1);
+    $("#score-1").text("Score: " + pScore1);
 });
 
 p2Ref.on("value", function(snapshot){
@@ -233,7 +233,7 @@ p2Ref.on("value", function(snapshot){
     pName2 = snapshot.val().name;
     pScore2 = snapshot.val().score;
     $("#name-2").text(pName2);
-    $("#score-2").text(pScore2);
+    $("#score-2").text("Score: " + pScore2);
 });
 
 promptRef.on("value", function(snapshot){
@@ -327,7 +327,8 @@ $(".player-choice-2").on("click", function(){
         $("#score-2").text("Score: " + pScore2);
         
         $("#rematch").css("display", "inline-block");
-        gameState = "result";
+        // gameState = "result";
+        gameState = "p1";
         updateGame(gameState, players, playerId1, playerId2);
         updateP1(pName1, pChoice1, pScore1);
         updateP2(pName2, pChoice2, pScore2);
