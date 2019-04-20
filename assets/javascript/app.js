@@ -18,6 +18,7 @@ var playerId1;
 var playerId2;
 
 var latestChat = "";
+var latestSender = "";
 
 function resetGame(){
     pName1 = "Player 1";
@@ -117,7 +118,7 @@ function setName(name){
 
 function pushChat(message){
     var newP = $("<p>");
-    newP.text(userId + ": " + message);
+    newP.text(latestSender + ": " + message);
     $("#chat").append(newP);
 
     $("#chat-input").val("");
@@ -245,6 +246,7 @@ chatRef.on("value", function(snapshot){
 
     //Keep track of players in the game
     latestChat = snapshot.val().chat;
+    latestSender = snapshot.val().sender;
     pushChat(latestChat);
     console.log(snapshot.numChildren());
 }), function(errorObject){
@@ -344,7 +346,7 @@ $("#submit-chat").on("click", function(event){
 
     chatRef.set({
         chat: text,
-        userId: userId
+        sender: connectionId.key.substr(connectionId.key.length - 5)
     });
 
     // pushChat(text);
@@ -371,7 +373,8 @@ function checkGame(){
     console.log("Unique ID Check: " + (connectionId.key != uniqueId));
     console.log("Unique ID pid Check: " + (playerId1 != uniqueId));
     console.log("Sanity Check: " + ("poo" != "poo"));
-    $("#results").text(connectionId.key);
+    console.log(connectionId.key.substr(connectionId.key.length - 5));
+    // $("#results").text(connectionId.key);
 }
 
 $("#check-button").on("click", checkGame);
