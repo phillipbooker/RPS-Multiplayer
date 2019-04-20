@@ -61,6 +61,10 @@ function resetGame(){
     updateGame(gameState, players, playerId1, playerId2);
     updateP1(pName1, pChoice1, pScore1);
     updateP2(pName2, pChoice2, pScore2);
+
+    resultRef.set({
+        outcome: ("Waiting for result...")
+    });
     // updatePrompt();
 
     // $("#results").text("Enter name for Player 1");
@@ -190,6 +194,7 @@ var gameRef = database.ref("/gameValues");
 var p1Ref = database.ref("/player1");
 var p2Ref = database.ref("/player2");
 var promptRef = database.ref("/prompt");
+var resultRef = database.ref("/result");
 ///////////SET GAME STATE IN DB
 
 // '.info/connected' is a boolean value, true if the client is connected and false if they are not.
@@ -280,6 +285,9 @@ promptRef.on("value", function(snapshot){
     $("#results").text(snapshot.val().prompt);
 });
 
+resultRef.on("value", function(snapshot){
+    $("#matchup").text(snapshot.val().outcome);
+});
 
 chatRef.on("value", function(snapshot){
 
@@ -352,7 +360,10 @@ $("#choices-2").on("click", ".player-choice-2", function(){
 
         var gameResult = chooseWinner(pChoice1, pChoice2);
 
-        $("#matchup").text(pName1 + ": " + pChoice1 + " - " + pName2 + ": " + pChoice2);
+        // $("#matchup").text(pName1 + ": " + pChoice1 + " - " + pName2 + ": " + pChoice2);
+        resultRef.set({
+            outcome: (pName1 + ": " + pChoice1 + " - " + pName2 + ": " + pChoice2)
+        });
         
         if(gameResult === 1){
             $("#results").text(pName1 + " wins!");
