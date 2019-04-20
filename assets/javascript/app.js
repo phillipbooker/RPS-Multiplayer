@@ -381,10 +381,6 @@ $("#choices-2").on("click", ".player-choice-2", function(){
     }
 });
 
-$("#ready-button").on("click", function(){
-    $("#rematch").css("display", "none");
-    prepMatch();
-});
 
 $("#submit-chat").on("click", function(event){
     event.preventDefault();
