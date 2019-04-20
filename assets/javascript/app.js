@@ -20,12 +20,12 @@ var playerId2;
 var latestChat = "";
 
 function resetGame(){
-    pName1 = "";
+    pName1 = "Player 1";
     pChoice1 = "";
     pScore1 = 0;
     $("#score-1").text("Score: " + pScore1);
 
-    pName2 = "";
+    pName2 = "Player 2";
     pChoice2 = "";
     pScore2 = 0;
     $("#score-2").text("Score: " + pScore2);
@@ -34,13 +34,48 @@ function resetGame(){
 
     players = 0;
 
+    playerId1 = "no";
+    playerId2 = "no";
+
     $("#player-input").css("display", "inline-block");
     $("#submit-player").css("display", "inline-block");
     $("#rematch").css("display", "none");
 
     gameState = "start";
+    updateGame(gameState, players, playerId1, playerId2);
+    updateP1(pName1, pChoice1, pScore1);
+    updateP2(pName2, pChoice2, pScore2);
 
     $("#results").text("Enter name for Player 1");
+}
+
+function newPlayer(){
+    //Update prompt accordingly?
+
+    updatePrompt(gameState);
+}
+
+function updatePrompt(state){
+    //start, p1, p2, result
+    var result;
+    switch(state) {
+        case "start":
+            result = "Enter name";
+            break;
+        case "p1":
+            result = pName1 + " is choosing...";
+            break;
+        case "p2":
+            result = pName2 + " is choosing...";
+            break;
+        case "result":
+            result = "";
+            break;
+        default:
+            result = "Issue retrieving state";
+    }
+    $("#results").text(result);
+
 }
 
 function prepMatch(){
@@ -50,6 +85,7 @@ function prepMatch(){
     $("#results").text(pName1 + " is choosing...");
 
     gameState = "p1";
+    updateGame(gameState, players, playerId1, playerId2);
 }
 
 function chooseWinner(p1, p2){
@@ -71,7 +107,7 @@ function setName(name){
         pName2 = name;
         $("#name-2").text(pName2);
     }
-    players++;
+    
     
 }
 
@@ -85,6 +121,32 @@ function pushChat(message){
     console.log($("#chat")[0].scrollTop);
     $("#chat")[0].scrollTop = $("#chat")[0].scrollHeight;
 }
+
+function updateGame(statePass, playersPass, idPass1, idPass2){
+    gameRef.set({
+        state: statePass,
+        players: playersPass,
+        p1id: idPass1,
+        p2id: idPass2
+    });
+}
+
+function updateP1(name, choice, score){
+    p1Ref.set({
+        name: name,
+        choice: choice,
+        score: score
+    });
+}
+
+function updateP2(name, choice, score){
+    p2Ref.set({
+        name: name,
+        choice: choice,
+        score: score
+    });
+}
+
 
 // Initialize firebase
 var config = {
@@ -105,7 +167,9 @@ var database = firebase.database();
 var connectionsRef = database.ref("/connections");
 var chatRef = database.ref("/chat");
 var gameRef = database.ref("/gameValues");
-
+var p1Ref = database.ref("/player1");
+var p2Ref = database.ref("/player2");
+///////////SET GAME STATE IN DB
 
 // '.info/connected' is a boolean value, true if the client is connected and false if they are not.
 var connectedRef = database.ref(".info/connected");
@@ -119,14 +183,15 @@ connectedRef.on("value", function(snap) {
         // Add user to the connections list.
         connectionId = connectionsRef.push(true);
 
-        // uniqueId = connectionId.substring(1, 4);
+        // uniqueId = connectionId.key;
 
         // Remove user from the connection list when they disconnect.
         connectionId.onDisconnect().remove();
 
-        for (key in connectionId){
-            console.log(key);
-        }
+        // for (key in connectionId){
+        //     console.log(key);
+        // }
+
         console.log("Connection id: " + connectionId);
         console.log("Type: " + connectionId.key);
     }
@@ -140,6 +205,7 @@ connectionsRef.on("value", function(snap) {
 });
 
 gameRef.on("value", function(snapshot){
+    gameState = snapshot.val().state;
     players = snapshot.val().players;
     playerId1 = snapshot.val().p1id;
     playerId2 = snapshot.val().p2id;
@@ -147,7 +213,21 @@ gameRef.on("value", function(snapshot){
     console.log(errorObject.code);
 });
 
+p1Ref.on("value", function(snapshot){
+    pChoice1 = snapshot.val().choice;
+    pName1 = snapshot.val().name;
+    pScore1 = snapshot.val().score;
+    $("#name-1").text(pName1);
+    $("#score-1").text(pScore1);
+});
 
+p2Ref.on("value", function(snapshot){
+    pChoice2 = snapshot.val().choice;
+    pName2 = snapshot.val().name;
+    pScore2 = snapshot.val().score;
+    $("#name-2").text(pName2);
+    $("#score-2").text(pScore2);
+});
 
 
 
@@ -167,50 +247,53 @@ chatRef.on("value", function(snapshot){
 $("#submit-player").on("click", function(event){
     event.preventDefault();
     var input = $("#player-input").val().trim();
-    if(gameState === "start" && input !== ""){
-        setName(input);
+    if(gameState === "start" && input !== "" && players < 2){
+        
         console.log("Player 1: " + pName1);
         console.log("Player 2: " + pName2);
 
-        if(players == 1){
+        if(players == 0){
+            setName(input);
             $("#results").text("Enter name for Player 2");
-            gameRef.set({
-                p1id: connectionId.key,
-                p2id: playerId2,
-                players: players
-            });
+            players++;
+            updateGame(gameState, players, connectionId.key, playerId2);
+            updateP1(pName1, "", 0);
+            
 
             console.log("Set the player info");
-        } else if(players == 2){
+        } else if((players == 1) && (connectionId.key !== playerId1)){
+            setName(input);
             gameState = "p1";
             $("#results").text(pName1 + " is choosing...");
 
             $("#player-input").css("display", "none");
             $("#submit-player").css("display", "none");
-            gameRef.set({
-                p1id: playerId1,
-                p2id: connectionId.key,
-                players: players
-            });
+            players++;
+            updateGame(gameState, players, playerId1, connectionId.key);
+            updateP2(pName2, "", 0);
+            
         }
 
         
         
     }
+    console.log("Game State: " + gameState);
+    console.log("Players: " + players);
     $("#player-input").val("");
     
 });
 
 $(".player-choice-1").on("click", function(){
-    if(gameState === "p1"){
+    if(gameState === "p1" && connectionId.key === playerId1){
         pChoice1 = $(this).attr("data-choice");
         $("#results").text(pName2 + " is choosing...");
         gameState = "p2";
+        updateGame(gameState, players, playerId1, playerId2);
     }
 });
 
 $(".player-choice-2").on("click", function(){
-    if(gameState === "p2"){
+    if(gameState === "p2" && connectionId.key === playerId2){
         pChoice2 = $(this).attr("data-choice");
         
         var gameResult = chooseWinner(pChoice1, pChoice2);
@@ -231,6 +314,7 @@ $(".player-choice-2").on("click", function(){
         
         $("#rematch").css("display", "inline-block");
         gameState = "result";
+        updateGame(gameState, players, playerId1, playerId2);
     }
 });
 
@@ -247,11 +331,32 @@ $("#submit-chat").on("click", function(event){
         chat: text,
         userId: userId
     });
-    connectionsRef.push(true);
 
     // pushChat(text);
 });
 
 $(document).ready(function(){
-    resetGame();
+    // resetGame();
+    newPlayer();
 });
+
+$("#magic-button").on("click", resetGame);
+
+function checkGame(){
+    console.log("CHECK START---");
+    console.log("Game state: " + gameState);
+    console.log("My ID: " + connectionId.key);
+    console.log("P1 ID: " + playerId1);
+    console.log("P2 ID: " + playerId2);
+    console.log("Players: " + players);
+    console.log("Players: " + players);
+    console.log("Condition check: " + (connectionId.key !== playerId1));
+    console.log("ID Key type: " + typeof connectionId.key);
+    console.log("Unique ID: " + uniqueId);
+    console.log("Unique ID Check: " + (connectionId.key != uniqueId));
+    console.log("Unique ID pid Check: " + (playerId1 != uniqueId));
+    console.log("Sanity Check: " + ("poo" != "poo"));
+    $("#results").text(connectionId.key);
+}
+
+$("#check-button").on("click", checkGame);
