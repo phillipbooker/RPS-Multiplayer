@@ -20,6 +20,21 @@ var playerId2;
 var latestChat = "";
 var latestSender = "";
 
+var c1 = {
+    name: "rock",
+    value: "r"
+};
+var c2 = {
+    name: "paper",
+    value: "p"
+};
+var c3 = {
+    name: "scissors",
+    value: "s"
+};
+
+var choiceBank = [c1, c2, c3];
+
 function resetGame(){
     pName1 = "Player 1";
     pChoice1 = "";
@@ -216,6 +231,17 @@ gameRef.on("value", function(snapshot){
     playerId1 = snapshot.val().p1id;
     playerId2 = snapshot.val().p2id;
     updatePrompt(gameState);
+
+    $("#choices-1").empty();
+    $("#choices-2").empty();
+
+    if((gameState === "p1") && (connectionId.key === playerId1)){
+        populateChoices(1);
+        
+    } else if((gameState === "p2") && (connectionId.key === playerId2)){
+        populateChoices(2);
+        
+    }
 }, function(errorObject){
     console.log(errorObject.code);
 });
@@ -282,6 +308,8 @@ $("#submit-player").on("click", function(event){
             updateGame(gameState, players, playerId1, connectionId.key);
             updateP2(pName2, "", 0);
             updatePrompt(gameState);
+            console.log("Pouplatng player 1...");
+            // populateChoices(1);
         }
 
         
@@ -293,18 +321,19 @@ $("#submit-player").on("click", function(event){
     
 });
 
-$(".player-choice-1").on("click", function(){
+$("#choices-1").on("click", ".player-choice-1", function(){
     if(gameState === "p1" && connectionId.key === playerId1){
         pChoice1 = $(this).attr("data-choice");
         // $("#results").text(pName2 + " is choosing...");
         gameState = "p2";
+        // populateChoices(2);
         updateGame(gameState, players, playerId1, playerId2);
         updateP1(pName1, pChoice1, pScore1);
         updatePrompt(gameState);
     }
 });
 
-$(".player-choice-2").on("click", function(){
+$("#choices-2").on("click", ".player-choice-2", function(){
     if(gameState === "p2" && connectionId.key === playerId2){
         pChoice2 = $(this).attr("data-choice");
         updateP2(pName2, pChoice2, pScore2);
@@ -333,6 +362,8 @@ $(".player-choice-2").on("click", function(){
         updateP1(pName1, pChoice1, pScore1);
         updateP2(pName2, pChoice2, pScore2);
         
+        $("#choices-1").empty();
+        $("#choices-2").empty();
     }
 });
 
@@ -357,6 +388,23 @@ $(document).ready(function(){
     // resetGame();
     newPlayer();
 });
+
+function populateChoices(player){
+    $.each(choiceBank, function(i, choice){
+        var rpsP = $("<p>");
+        rpsP.addClass("player-choice-" + player);
+        rpsP.attr("id", choice.name + "-" + player);
+        rpsP.attr("data-choice", choice.value);
+        rpsP.text(choice.name);
+        $("#choices-" + player).append(rpsP);
+        console.log(rpsP);
+    });
+    // <p id="name-1" class="player-item">Player 1</p>
+    // <p id="rock-1" class="player-choice-1" data-choice="r">Rock</p>
+    // <p id="paper-1" class="player-choice-1" data-choice="p">Paper</p>
+    // <p id="scissor-1" class="player-choice-1" data-choice="s">Scissors</p>
+    // <p id="score-1" class="player-item">Score</p>
+}
 
 $("#magic-button").on("click", resetGame);
 
