@@ -20,6 +20,8 @@ var playerId2;
 var latestChat = "";
 var latestSender = "";
 
+var screenName = "";
+
 var c1 = {
     name: "rock",
     value: "r"
@@ -204,6 +206,8 @@ connectedRef.on("value", function(snap) {
         // Add user to the connections list.
         connectionId = connectionsRef.push(true);
 
+        screenName = connectionId.key.substr(connectionId.key.length - 5);
+        $("#screen-name").text(screenName);
         // uniqueId = connectionId.key;
 
         // Remove user from the connection list when they disconnect.
