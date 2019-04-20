@@ -361,8 +361,28 @@ $("#choices-2").on("click", ".player-choice-2", function(){
         var gameResult = chooseWinner(pChoice1, pChoice2);
 
         // $("#matchup").text(pName1 + ": " + pChoice1 + " - " + pName2 + ": " + pChoice2);
+
+        var pChoiceDisplay1;
+        var pChoiceDisplay2;
+
+        if(pChoice1 === "r"){
+            pChoiceDisplay1 = "rock";
+        } else if(pChoice1 === "p"){
+            pChoiceDisplay1 = "paper";
+        } else if(pChoice1 === "s"){
+            pChoiceDisplay1 = "scissors";
+        }
+
+        if(pChoice2 === "r"){
+            pChoiceDisplay2 = "rock";
+        } else if(pChoice2 === "p"){
+            pChoiceDisplay2 = "paper";
+        } else if(pChoice2 === "s"){
+            pChoiceDisplay2 = "scissors";
+        }
+
         resultRef.set({
-            outcome: (pName1 + ": " + pChoice1 + " - " + pName2 + ": " + pChoice2)
+            outcome: (pName1 + ": " + pChoiceDisplay1 + " - " + pName2 + ": " + pChoiceDisplay2)
         });
         
         if(gameResult === 1){
