@@ -227,14 +227,50 @@ connectedRef.on("value", function(snap) {
 
         console.log("Connection id: " + connectionId);
         console.log("Type: " + connectionId.key);
+    } else {
+        testingDisconnect();
     }
 }, function(errorObject){
     console.log(errorObject.code);
 });
 
+function testingDisconnect(){
+    database.ref("/users").set({
+        id: 777
+    });
+}
+
 connectionsRef.on("value", function(snap) {
     console.log(snap.numChildren());
-    console.log(snap);
+    console.log("Connections Children: " + snap.child);
+
+    //When a user disconnects
+    if((gameState === "p1") || (gameState === "p2")){
+        var childKeys = [];
+        snap.forEach(function(child) {
+            childKeys.push(child.key);
+        });
+        if(!(childKeys.includes(playerId1))){
+            //check to see if p1/p2 id is in childKeys
+            players--;
+            gameState = "start";
+            console.log("Players after D/C" + players);
+            updateGame(gameState, players, playerId2, "");
+            updateP1(pName2, "", 0);
+            updateP2("Player 2", "", 0);
+            // playerId1 = playerId2;
+        } else if(!(childKeys.includes(playerId2))){
+            //check to see if p1/p2 id is in childKeys
+            players--;
+            gameState = "start";
+            console.log("Players after D/C" + players);
+            updateGame(gameState, players, playerId1, "");
+            updateP1(pName1, "", 0);
+            updateP2("Player 2", "", 0);
+            // playerId1 = playerId2;
+        }
+    }
+    
 });
 
 gameRef.on("value", function(snapshot){
