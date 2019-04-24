@@ -245,22 +245,66 @@ connectionsRef.on("value", function(snap) {
     console.log("Connections Children: " + snap.child);
 
     //When a user disconnects
-    if((gameState === "p1") || (gameState === "p2")){
+    //THIS NEEDS TO HAPPEN WHEN PLAYERS ARE GREATER THAN 1
+    //MAYBE ADD A CONDITIONAL FOR WHEN THE GAMESTATE IS START AND PLAYERS == 1
+    //CURRENTLY NEVER GOES HERE IF THERE IS ONLY ONE PLAYER!!!!!
+    if((snap.numChildren()) === 1 && (connectionId.key !== playerId1) && (connectionId.key !== playerId2)){
+        resetGame();
+    }
+
+    //If there is one player and one disconnects
+    if((gameState === "start") && (players === 1)){
         var childKeys = [];
         snap.forEach(function(child) {
             childKeys.push(child.key);
         });
         if(!(childKeys.includes(playerId1))){
-            //check to see if p1/p2 id is in childKeys
+            //If P1 disconnects
+            //CHECK HERE IF THERE ARE  PLAYERSSSS
             players--;
             gameState = "start";
             console.log("Players after D/C" + players);
-            updateGame(gameState, players, playerId2, "");
-            updateP1(pName2, "", 0);
-            updateP2("Player 2", "", 0);
+
+                updateGame(gameState, players, playerId2, "");
+                updateP1(pName2, "", 0);
+                updateP2("Player 2", "", 0);
+             
+            
+            
             // playerId1 = playerId2;
+            resultRef.set({
+                outcome: ("Waiting for result...")
+            });
+            console.log("P1ID: " + playerId1);
+            console.log("P2ID: " + playerId2);
+
+            resetGame();
+        }
+    } else if((gameState === "p1") || (gameState === "p2")){
+        var childKeys = [];
+        snap.forEach(function(child) {
+            childKeys.push(child.key);
+        });
+        if(!(childKeys.includes(playerId1))){
+            //If P1 disconnects
+            players--;
+            gameState = "start";
+            console.log("Players after D/C" + players);
+
+                updateGame(gameState, players, playerId2, "");
+                updateP1(pName2, "", 0);
+                updateP2("Player 2", "", 0);
+             
+            
+            
+            // playerId1 = playerId2;
+            resultRef.set({
+                outcome: ("Waiting for result...")
+            });
+            console.log("P1ID: " + playerId1);
+            console.log("P2ID: " + playerId2);
         } else if(!(childKeys.includes(playerId2))){
-            //check to see if p1/p2 id is in childKeys
+            //If P2 disconnects
             players--;
             gameState = "start";
             console.log("Players after D/C" + players);
@@ -268,6 +312,11 @@ connectionsRef.on("value", function(snap) {
             updateP1(pName1, "", 0);
             updateP2("Player 2", "", 0);
             // playerId1 = playerId2;
+            resultRef.set({
+                outcome: ("Waiting for result...")
+            });
+            console.log("P1ID: " + playerId1);
+            console.log("P2ID: " + playerId2);
         }
     }
     
@@ -297,6 +346,10 @@ gameRef.on("value", function(snapshot){
         populateChoices(2);
         
     }
+    
+
+    
+
 }, function(errorObject){
     console.log(errorObject.code);
 });
