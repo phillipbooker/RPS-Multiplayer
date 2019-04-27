@@ -2,9 +2,26 @@
     box-sizing: border-box;
 }
 
+/* #game-field{
+    margin: auto;
+} */
+body{
+    background-image: url(../images/floor-tile.png);
+}
+
+h1{
+    font-size: 3em;
+    font-family: 'Tangerine', cursive;
+    font-weight: bold;
+    margin: 10px;
+}
+
 .game-box{
     float: left;
     border: solid 1px black;
+    background-color: azure;
+    border-radius: 5px;
+    padding: 15px;
     height: 200px;
     width: 200px;
     margin: 25px;
@@ -21,6 +38,23 @@
     height: 100px;
     overflow: auto;
     border: solid 1px black;
+    background-color: azure;
+    border-radius: 10px;
+    padding: 5px;
+}
+
+#results{
+    font-weight: bold;
+}
+
+#results,
+#chat,
+#chat-bar{
+    margin: 5px 15px;
+}
+
+#check-button{
+    display: none;
 }
 
 #name-form{
